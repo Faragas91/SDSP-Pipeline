@@ -25,6 +25,17 @@ Most of the tools are available online and can be downloaded from their respecti
 
 ## ⚙️ Pipeline Workflow
 
+![Pipeline Diagram](images/Pipeline.drawio.png)
+
+The SDSP pipeline provides an overview of the complete analysis process:
+
+1. **Positive datasets** are generated using SISSI, based on defined nucleotide frequency distributions. A total of 100,000 sequences per parameter set are created.  
+2. **Negative control sequences** are generated from the positives using SISSIz, Multiperm, and aln-Shuffle. Each positive sequence yields five negative variants, preserving mono- and dinucleotide frequencies (SISSIz, Multiperm) or producing random permutations (aln-Shuffle). About 500,000 negative datasets are generated for evaluation.  
+3. **Structure prediction** is performed using SISSIz, RNAz, and PETfold. Positive datasets retain secondary structure, while negative datasets exhibit disrupted structures.  
+4. **Evaluation** is conducted in Python using pandas, numpy, matplotlib, seaborn, and scikit-learn. Boxplots illustrate structural disruption, and ROC curves evaluate classification performance.
+
+This workflow allows a comprehensive assessment of sequence randomization methods and RNA structure prediction tools.
+
 ## 🚀 Usage
 
 ### 1. Clone the repository
