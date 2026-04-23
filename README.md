@@ -43,9 +43,9 @@ This workflow allows a comprehensive assessment of sequence randomization method
 git clone https://github.com/Faragas91/SDSP-Pipeline.git
 cd SDSP-Pipeline
 ```
-### 2. Create a Conda enviroment with python 3.8, 3.9 or 3.10
+### 2. Create a Conda enviroment with the enviroment.yml
 
 ``` bash
-conda create -n sdsp_pipeline python=3.9
+conda env create -f enviroment.yml
 conda activate sdsp_pipeline
 ```
