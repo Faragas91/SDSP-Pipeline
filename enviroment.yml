@@ -1,0 +1,30 @@
+name: sdsp_pipeline
+channels:
+  - conda-forge
+  - bioconda
+  - defaults
+
+dependencies:
+  # Python
+  - python=3.9
+
+  # Core libraries
+  - numpy
+  - pandas
+  - scipy
+
+  # Bioinformatics
+  - biopython
+  - viennarna
+  - mafft
+  - clustalw
+
+  # Optional (je nach Pipeline)
+  - hmmer
+
+  # Plotting (falls du Graphen machst)
+  - matplotlib
+  - seaborn
+
+  # Utilities
+  - pip
