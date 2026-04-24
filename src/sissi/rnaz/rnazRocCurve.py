@@ -1,0 +1,245 @@
+import numpy as np
+import pandas as pd
+import matplotlib.pyplot as plt
+import seaborn as sns
+from sklearn.linear_model import LogisticRegression
+from sklearn.model_selection import StratifiedKFold, cross_val_predict
+from sklearn.metrics import (
+    confusion_matrix,
+    classification_report,
+    roc_curve,
+    auc,
+    accuracy_score,
+    precision_score,
+    recall_score,
+    f1_score
+)
+import os
+from config.loadConfig import loadConfig
+
+def evaluate_classifier(
+    df_positive,
+    df_negative,
+    pos_label=1,
+    neg_label=0,
+    title_suffix="",
+    save_path=None
+):
+
+
+    # ----------------------------
+    # Prepare data
+    # ----------------------------
+    df_positive = df_positive.copy()
+    df_negative = df_negative.copy()
+
+    df_positive["Label"] = pos_label
+    df_negative["Label"] = neg_label
+
+    data = pd.concat([df_positive, df_negative], ignore_index=True)
+
+    X = data[["SVM RNA-class probability"]]
+    y = data["Label"]
+
+    # ----------------------------
+    # Histogram
+    # ----------------------------
+    plt.figure(figsize=(12, 8))
+    sns.histplot(
+        data=data,
+        x="SVM RNA-class probability",
+        hue="Label",
+        bins=50,
+        kde=True
+    )
+    plt.xlabel("SVM RNA-class probability")
+    plt.ylabel("Count")
+    plt.legend(["Negative", "Positive"])
+    plt.tight_layout()
+
+    if RNAZSAVEPATH:
+        plt.savefig(
+            os.path.join(RNAZSAVEPATH, f"RNAz: Histogram {title_suffix}.png"),
+            dpi=300,
+            bbox_inches="tight"
+        )
+    plt.show()
+
+    # ----------------------------
+    # Logistic Regression with CV
+    # ----------------------------
+    model = LogisticRegression(
+        max_iter=1000,
+        class_weight="balanced",
+        solver="lbfgs"
+    )
+
+    cv = StratifiedKFold(n_splits=5, shuffle=True, random_state=42)
+
+    y_pred = cross_val_predict(
+        model,
+        X,
+        y,
+        cv=cv,
+        method="predict"
+    )
+
+    y_proba = cross_val_predict(
+        model,
+        X,
+        y,
+        cv=cv,
+        method="predict_proba"
+    )[:, 1]
+
+    # ----------------------------
+    # Confusion Matrix
+    # ----------------------------
+    cm = confusion_matrix(y, y_pred)
+
+    plt.figure(figsize=(12, 8))
+    sns.heatmap(
+        cm,
+        annot=True,
+        fmt="d",
+        cmap="Blues",
+        xticklabels=["Negative", "Positive"],
+        yticklabels=["Negative", "Positive"]
+    )
+    plt.xlabel("Predicted label")
+    plt.ylabel("True label")
+    plt.tight_layout()
+
+    if RNAZSAVEPATH:
+        plt.savefig(
+            os.path.join(RNAZSAVEPATH, f"RNAz: Confusion Matrix {title_suffix}.png"),
+            dpi=300,
+            bbox_inches="tight"
+        )
+    plt.show()
+
+    print("\nClassification report:\n")
+    print(classification_report(y, y_pred))
+
+    # ----------------------------
+    # ROC Curve
+    # ----------------------------
+    fpr, tpr, _ = roc_curve(y, y_proba)
+    roc_auc = auc(fpr, tpr)
+
+    plt.figure(figsize=(12, 8))
+    plt.plot(fpr, tpr, label=f"AUC = {roc_auc:.3f}")
+    plt.plot([0, 1], [0, 1], "--", color="gray")
+    plt.xlabel("False Positive Rate")
+    plt.ylabel("True Positive Rate")
+    plt.legend(loc="lower right")
+    plt.grid(True)
+    plt.tight_layout()
+
+    if RNAZSAVEPATH:
+        plt.savefig(
+            os.path.join(RNAZSAVEPATH, f"RNAz: ROC {title_suffix}.png"),
+            dpi=300,
+            bbox_inches="tight"
+        )
+    plt.show()
+
+    # ----------------------------
+    # Metrics
+    # ----------------------------
+    print(f"AUC:       {roc_auc:.4f}")
+    print(f"Accuracy:  {accuracy_score(y, y_pred):.4f}")
+    print(f"Precision: {precision_score(y, y_pred):.4f}")
+    print(f"Recall:    {recall_score(y, y_pred):.4f}")
+    print(f"F1-score:  {f1_score(y, y_pred):.4f}")
+
+    return {
+        "label": title_suffix,
+        "y_true": y,
+        "y_proba": y_proba,
+        # "model": "Logistic Regression"
+    }
+
+config = loadConfig("config/pipeline.conf")
+
+RNAZEXCEL = config.get("RNAZEXCEL")
+RNAZSAVEPATH = config.get("RNAZSAVEPATH")
+
+if not os.path.exists(RNAZSAVEPATH):
+    os.makedirs(RNAZSAVEPATH)
+
+df_sissi = pd.DataFrame(pd.read_excel(f"{RNAZEXCEL}/sissi.xlsx", usecols=['SVM RNA-class probability']))
+df_sissiz_mono = pd.DataFrame(pd.read_excel(f"{RNAZEXCEL}/sissiz_mono.xlsx", usecols=['SVM RNA-class probability']))
+df_sissiz_di = pd.DataFrame(pd.read_excel(f"{RNAZEXCEL}/sissiz_di.xlsx", usecols=['SVM RNA-class probability']))
+df_multiperm_none = pd.DataFrame(pd.read_excel(f"{RNAZEXCEL}/multiperm_none.xlsx", usecols=['SVM RNA-class probability']))
+df_multiperm_level1 = pd.DataFrame(pd.read_excel(f"{RNAZEXCEL}/multiperm_level1.xlsx", usecols=['SVM RNA-class probability']))
+df_aln_shuffle = pd.DataFrame(pd.read_excel(f"{RNAZEXCEL}/alnshuffle.xlsx", usecols=['SVM RNA-class probability']))
+
+all_roc_data = []
+
+tools = [
+    {
+        "df_positive": df_sissi,
+        "df_negative": df_sissiz_mono,
+        "title_suffix": "SISSI vs SISSIz_MONO with randomized samples",
+        "save_path": RNAZSAVEPATH
+    }, 
+    {
+        "df_positive": df_sissi,
+        "df_negative": df_sissiz_di,
+        "title_suffix": "SISSI vs SISSIz_DI with randomized samples",
+        "save_path": RNAZSAVEPATH
+    }, 
+    {
+        "df_positive": df_sissi,
+        "df_negative": df_multiperm_none,
+        "title_suffix": "SISSI vs Multiperm_NONE with randomized samples",
+        "save_path": RNAZSAVEPATH
+    }, 
+    {
+        "df_positive": df_sissi,
+        "df_negative": df_multiperm_level1,
+        "title_suffix": "SISSI vs Multiperm_LEVEL1 with randomized samples",
+        "save_path": RNAZSAVEPATH
+    }, 
+    {
+        "df_positive": df_sissi,
+        "df_negative": df_aln_shuffle,
+        "title_suffix": "SISSI vs Aln_Shuffle with randomized samples",
+        "save_path": RNAZSAVEPATH
+    }
+]
+
+for tool in tools:
+    roc_data = evaluate_classifier(
+        df_positive=tool["df_positive"],
+        df_negative=tool["df_negative"],
+        title_suffix=tool["title_suffix"],
+        save_path=tool["save_path"]
+    )
+    all_roc_data.append(roc_data)
+
+plt.figure(figsize=(12, 8))
+
+for entry in all_roc_data:
+    fpr, tpr, _ = roc_curve(entry['y_true'], entry['y_proba'])
+    roc_auc = auc(fpr, tpr)
+    plt.plot(fpr, tpr, label=f"{entry['label']} (AUC = {roc_auc:.2f})")
+
+plt.plot([0, 1], [0, 1], 'k--', label='Random')
+
+plt.xlabel("False Positive Rate")
+plt.ylabel("True Positive Rate")
+plt.rc('axes', labelsize=14)
+plt.rc('xtick', labelsize=14)
+plt.rc('ytick', labelsize=14)
+plt.rc('legend', fontsize=14)
+# plt.title("RNAz: ROC-Curves Comparison with randomized samples")
+plt.legend(loc="lower right")
+plt.grid(True)
+plt.tight_layout()
+if RNAZSAVEPATH:
+    filename = os.path.join(RNAZSAVEPATH, "RNAz: ROC Curve All with randomized samples.png")
+    plt.savefig(filename, dpi=300, bbox_inches='tight')
+plt.show()
+
