@@ -55,7 +55,7 @@ elif [[ "$MODE" == "sissi" ]]; then
 
     echo "Transfer the results into excel files for further analysis"
     python src/sissi/sissiz/transferSISSIzDataToExcel.py
-    python src/sissi/rnaz/transferRNazDataToExcel.py
+    python src/sissi/rnaz/transferRNAzDataToExcel.py
     python src/sissi/petfold/transferPETfoldDataToExcel.py
     echo "Finished transferring the results into excel files for further analysis"
 
