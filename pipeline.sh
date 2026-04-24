@@ -59,9 +59,17 @@ elif [[ "$MODE" == "sissi" ]]; then
     python src/sissi/petfold/transferPETfoldDataToExcel.py
     echo "Finished transferring the results into excel files for further analysis"
 
-    echo "Generate the plots for the analysis"
-    python src/sissi/plotResults.py
-    echo "Finished generating the plots for the analysis"
+    echo "Analyze the results"
+    python "src/sissi/sissiz/sissizAnalyse.py"
+    python "src/sissi/rnaz/rnazAnalyse.py"
+    python "src/sissi/petfold/petfoldAnalyse.py"
+    echo "Finished analyzing the results"
+
+    echo "Generate ROC curves for the analysis"
+    python src/sissi/sissiz/sissizRocCurve.py
+    python src/sissi/rnaz/rnazRocCurve.py
+    python src/sissi/petfold/petfoldRocCurve.py
+    echo "Finished generating ROC curves for the analysis"
 
     echo "Finished the pipeline"
 fi
