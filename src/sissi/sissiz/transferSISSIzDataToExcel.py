@@ -1,6 +1,7 @@
 import os
 import shutil
 import pandas as pd
+import re
 from config.loadConfig import loadConfig
 
 # Function to parse the RNAz file
@@ -39,6 +40,11 @@ def createExcelData(data, count, nameOfFile, excelName):
             data.append(file_data)
 
     df = pd.DataFrame(data)
+
+    df.columns = [
+        re.sub(r'(\d)\.', r'\1', col).rstrip(".").strip()
+        for col in df.columns
+    ]
     df.to_excel(f"{excelName}.xlsx", index=False)
 
     print(f"Your data was succsessfully transfered to {excelName}.xlsx.")
