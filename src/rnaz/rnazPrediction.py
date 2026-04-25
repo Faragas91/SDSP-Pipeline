@@ -5,17 +5,22 @@ import time
 import threading
 from config.loadConfig import loadConfig
 
-config = loadConfig("config/pipeline.conf")
+config_path = os.getenv("CONFIG_FILE")
 
-# Define variables
-SISSIZ = config.get("SISSIZ")
+if not config_path:
+    raise ValueError("CONFIG_FILE environment variable is not set. Please set it to the path of the configuration file.")
+
+config = loadConfig(config_path)
 SAMPLESCLUSTAL = config.get("SAMPLESCLUSTAL")
-SISSIZPREOUTPUT = config.get("SISSIZPREOUTPUT")
-SISSIZLOG = config.get("SISSIZLOG")
+RNAZ = config.get("RNAZ")
+RNAZPREOUTPUT = config.get("RNAZPREOUTPUT")
+RNAZLOG = config.get("RNAZLOG")
 NUMCORES = int(config.get("NUMCORES"))  # Number of CPU cores to use
 
+# Make sure the executables have the necessary permissions
+
 # Create the output directories if they don't exist
-os.makedirs(SISSIZPREOUTPUT, exist_ok=True)
+os.makedirs(RNAZPREOUTPUT, exist_ok=True)
 
 # Function to run a command and return the output
 def run_command(command):
@@ -25,16 +30,16 @@ def run_command(command):
         print(f"Error running command: {command}\n{stderr}")
     return stdout
 
-def process_file_sissiz(file):
+def process_file_rnaz(file):
     basename = os.path.splitext(file)[0]
-    output_file = os.path.join(SISSIZPREOUTPUT, f"{basename}.txt")
-        
+    output_file = os.path.join(RNAZPREOUTPUT, f"{basename}.txt")
+    
     # Check if output file already exists
     if os.path.isfile(output_file):
-        print(f"{output_file} already exists, skipping...")
+       print(f"{output_file} already exists, skipping...")
     else:
-        # Run SISSIz prediction
-        run_command(f"{SISSIZ} --sci {os.path.join(SAMPLESCLUSTAL, file)} >> {output_file}")
+        # Run RNAz prediction
+        run_command(f"{RNAZ} -n {os.path.join(SAMPLESCLUSTAL, file)} > {output_file}")
         print(f"{output_file} finished")
 
 # Start time measurement
@@ -52,12 +57,12 @@ def increment_count():
         if count % 1000 == 0:
             elapsed_time = time.time() - start_time
             print(f"Processed {count} files in {elapsed_time:.2f} seconds")
-            with open(SISSIZLOG + "sissiz_execution_time.log", "a") as log_file:
+            with open(RNAZLOG + "rnaz_execution_time.log", "a") as log_file:
                 log_file.write(f"Processed {count} files in {elapsed_time:.2f} seconds\n")
 
-# Run SISSIz predictions for all samples in parallel
+# Run RNAz predictions for all SAMPLES_CLUSTAL in parallel
 with ProcessPoolExecutor(max_workers=NUMCORES) as executor:
-    futures = {executor.submit(process_file_sissiz, file): file for file in os.listdir(SAMPLESCLUSTAL) if file.endswith(".clu")}
+    futures = {executor.submit(process_file_rnaz, file): file for file in os.listdir(SAMPLESCLUSTAL) if file.endswith(".clu")}
     for future in as_completed(futures):
         future.result()
         increment_count()
@@ -73,6 +78,6 @@ print(f"\nScript finished at: {end_time_str}")
 print(f"Total execution time: {execution_time:.2f} seconds")
 
 # Save final execution time to file
-with open(SISSIZLOG + "sissiz_execution_time.log", "a") as log_file:
+with open(RNAZLOG + "rnaz_execution_time.log", "a") as log_file:
     log_file.write(f"\nScript finished at: {end_time_str}\n")
     log_file.write(f"Total execution time: {execution_time:.2f} seconds\n")

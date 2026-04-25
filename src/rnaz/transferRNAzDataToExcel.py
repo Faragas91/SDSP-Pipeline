@@ -1,32 +1,26 @@
+from logging import config
 import os
 import shutil
 import pandas as pd
-import re
 from config.loadConfig import loadConfig
 
 # Function to parse the RNAz file
-def parse_sissiz_file(file_path):
-    # Define the keys for the relevant columns (starting with column 4)
-    keys = [
-        "Mean Pairwise Identity (MPI) of the input alignment",
-        "Average MPI of the sampled alignments.",
-        "Standard deviation of the MPIs of the sampled alignments",
-        "Structural Conservation Index (SCI)",
-        "GC-Content",
-        "RNAalifold consensus Minimum Free Energy (MFE) of the original alignment.",
-        "Average consensus MFE in the sampled alignments",
-        "Standard deviation of the consensus MFE in the sampled alignments",
-        "z-score calculated from 7. 8. and 9."
-    ]
+def parse_rnaz_file(file_path):
+    data = {}
 
+    # Read every line in the .txt file
     with open(file_path, 'r') as file:
-        first_line = file.readline().strip().split()  # Entferne Leerzeichen und teile in eine Liste
-
-    values = first_line[4:]  
-    data = {key: value for key, value in zip(keys, values)}
-
+        for line in file:
+            line = line.strip()  # disable spaces
+            if line.startswith("Prediction"):
+                break
+            if ": " in line:  # see keys and values
+                key, value = line.split(": ", 1)
+                if any(i.isdigit() for i in value):
+                    data[key] = value
+                else:
+                    continue
     return data
-
 
 # All data
 def createExcelData(data, count, nameOfFile, excelName):
@@ -35,26 +29,26 @@ def createExcelData(data, count, nameOfFile, excelName):
             count += 1
             print(f"Process file {count}: {file_name}")
             file_path = os.path.join(directory, file_name)
-            file_data = parse_sissiz_file(file_path)
+            file_data = parse_rnaz_file(file_path)
             file_data["File"] = file_name  
             data.append(file_data)
 
     df = pd.DataFrame(data)
-
-    df.columns = [
-        re.sub(r'(\d)\.', r'\1', col).rstrip(".").strip()
-        for col in df.columns
-    ]
     df.to_excel(f"{excelName}.xlsx", index=False)
 
     print(f"Your data was succsessfully transfered to {excelName}.xlsx.")
     shutil.move(f"/mnt/bernhard/SDSP-Pipeline/{excelName}.xlsx", f"{excel_directory}/{excelName}.xlsx")
-    return count
-    
-config = loadConfig("config/pipeline.conf")
+    return count 
 
-directory = config.get("SISSIZPREOUTPUT")
-excel_directory = config.get("SISSIZEXCEL")
+config_path = os.getenv("CONFIG_FILE")
+
+if not config_path:
+    raise ValueError("CONFIG_FILE environment variable is not set. Please set it to the path of the configuration file.")
+
+config = loadConfig(config_path)
+
+directory = config.get("RNAZPREOUTPUT")
+excel_directory = config.get("RNAZEXCEL")
 
 os.makedirs(excel_directory, exist_ok=True)
 

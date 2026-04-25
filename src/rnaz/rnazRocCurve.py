@@ -63,7 +63,7 @@ def evaluate_classifier(
             dpi=300,
             bbox_inches="tight"
         )
-    plt.show()
+    plt.close()
 
     # ----------------------------
     # Logistic Regression with CV
@@ -116,7 +116,7 @@ def evaluate_classifier(
             dpi=300,
             bbox_inches="tight"
         )
-    plt.show()
+    plt.close()
 
     print("\nClassification report:\n")
     print(classification_report(y, y_pred))
@@ -142,7 +142,7 @@ def evaluate_classifier(
             dpi=300,
             bbox_inches="tight"
         )
-    plt.show()
+    plt.close()
 
     # ----------------------------
     # Metrics
@@ -160,7 +160,12 @@ def evaluate_classifier(
         # "model": "Logistic Regression"
     }
 
-config = loadConfig("config/pipeline.conf")
+config_path = os.getenv("CONFIG_FILE")
+
+if not config_path:
+    raise ValueError("CONFIG_FILE environment variable is not set. Please set it to the path of the configuration file.")
+
+config = loadConfig(config_path)
 
 RNAZEXCEL = config.get("RNAZEXCEL")
 RNAZSAVEPATH = config.get("RNAZSAVEPATH")
@@ -241,5 +246,5 @@ plt.tight_layout()
 if RNAZSAVEPATH:
     filename = os.path.join(RNAZSAVEPATH, "RNAz: ROC Curve All with randomized samples.png")
     plt.savefig(filename, dpi=300, bbox_inches='tight')
-plt.show()
+plt.close()
 

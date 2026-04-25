@@ -33,8 +33,12 @@ def createExcelData(data, count, nameOfFile, excelName):
     return count 
 
 
-config = loadConfig("config/pipeline.conf")
+config_path = os.getenv("CONFIG_FILE")
 
+if not config_path:
+    raise ValueError("CONFIG_FILE environment variable is not set. Please set it to the path of the configuration file.")
+
+config = loadConfig(config_path)
         
 directory = config.get("PETFOLDPREOUTPUT")
 excel_directory = config.get("PETFOLDEXCEL")

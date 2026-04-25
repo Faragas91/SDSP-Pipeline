@@ -1,86 +1,48 @@
 #!/bin/bash
 MODE=${1:-sissi}
 
-if [[ "$MODE" != "native" && "$MODE" != "sissi" ]]; then
-    echo "Usage: $0 [native|sissi]"
+if [[ "$MODE" != "native" && "$MODE" != "sissi" && "$MODE" != "both" ]]; then
+    echo "Usage: $0 [native|sissi|both]"
     exit 1
 fi
 
-echo "Set up the tool paths by sourcing the config file"
-source config/pipeline.conf
-
 export PYTHONPATH="$(pwd):$PYTHONPATH"
 
-if [[ "$MODE" == "native" ]]; then
-    echo "Running the pipeline in native mode"
+##################################
+# Funktion
+##################################
+run_pipeline () {
+    MODE_NAME=$1
 
-    echo "Starting to destroy the native samples"
-    python src/native/NativeDestruction.py
-    echo "Finished destroying the native samples"
+    echo "Running pipeline in $MODE_NAME mode"
 
-    echo "Transform the CLUSTAL files to FASTA format for PETfold"
-    python src/native/convertClustalToFasta.py
-    echo "Finished transforming the CLUSTAL files to FASTA format for PETfold"
+    export CONFIG_FILE="config/pipeline_${MODE_NAME}.conf"
 
-    echo "Started the prediction of the randomized and native samples"
-    python src/native/Structure_prediction.py
-    echo "Finished the prediction of the randomized and native samples"
+    # python src/converterClustalToFasta.py
+    # python src/sissiz/sissizPrediction.py
+    # python src/rnaz/rnazPrediction.py
+    # python src/petfold/petfoldPrediction.py
 
-    echo "Transfer the results into excel files for further analysis"
-    python src/native/transferPredictionResults.py
-    echo "Finished transferring the results into excel files for further analysis"
+    # python src/sissiz/transferSISSIzDataToExcel.py
+    # python src/rnaz/transferRNAzDataToExcel.py
+    # python src/petfold/transferPETfoldDataToExcel.py
 
-    echo "Generate the plots for the analysis"
-    python src/native/plotResults.py
-    echo "Finished generating the plots for the analysis"
+    python src/sissiz/sissizAnalyse.py
+    python src/rnaz/rnazAnalyse.py
+    python src/petfold/petfoldAnalyse.py
 
-    echo "Finished the pipeline"
+    python src/sissiz/sissizRocCurve.py
+    python src/rnaz/rnazRocCurve.py
+    python src/petfold/petfoldRocCurve.py
+}
 
-elif [[ "$MODE" == "sissi" ]]; then
-    echo "Running the pipeline in sissi mode"
-
-    echo "Starting to generate the randomized samples"
-    python src/sissi/sampleGeneratorForSISSI.py
-    echo "Finished generating randomized samples"
-
-    echo "Transform the CLUSTAL files to FASTA format for PETfold"
-    python src/sissi/converterClustalToFasta.py
-    echo "Finished transforming the CLUSTAL files to FASTA format for PETfold"
-
-    echo "Started the prediction of the randomized and native samples"
-    python src/sissi/sissiz/sissizPrediction.py
-    python src/sissi/rnaz/rnazPrediction.py
-    python src/sissi/petfold/petfoldPrediction.py
-    echo "Finished the prediction of the randomized and native samples"
-
-    echo "Transfer the results into excel files for further analysis"
-    python src/sissi/sissiz/transferSISSIzDataToExcel.py
-    python src/sissi/rnaz/transferRNAzDataToExcel.py
-    python src/sissi/petfold/transferPETfoldDataToExcel.py
-    echo "Finished transferring the results into excel files for further analysis"
-
-    echo "Analyze the results"
-    python "src/sissi/sissiz/sissizAnalyse.py"
-    python "src/sissi/rnaz/rnazAnalyse.py"
-    python "src/sissi/petfold/petfoldAnalyse.py"
-    echo "Finished analyzing the results"
-
-    echo "Generate ROC curves for the analysis"
-    python src/sissi/sissiz/sissizRocCurve.py
-    python src/sissi/rnaz/rnazRocCurve.py
-    python src/sissi/petfold/petfoldRocCurve.py
-    echo "Finished generating ROC curves for the analysis"
-
-    echo "Finished the pipeline"
+##################################
+# Aufruf
+##################################
+if [[ "$MODE" == "native" || "$MODE" == "both" ]]; then
+    run_pipeline native
 fi
 
-
-
-
-
-
-
-
-
-
-
+if [[ "$MODE" == "sissi" || "$MODE" == "both" ]]; then
+    run_pipeline sissi
+fi

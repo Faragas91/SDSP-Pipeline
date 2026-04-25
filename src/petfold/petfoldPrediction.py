@@ -5,7 +5,12 @@ import time
 import threading
 from config.loadConfig import loadConfig
 
-config = loadConfig("config/pipeline.conf")
+config_path = os.getenv("CONFIG_FILE")
+
+if not config_path:
+    raise ValueError("CONFIG_FILE environment variable is not set. Please set it to the path of the configuration file.")
+
+config = loadConfig(config_path)
 # Define variables
 
 ENV = os.environ.copy()
