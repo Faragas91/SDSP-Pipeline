@@ -1,51 +1,207 @@
-# SDSP Pipeline  
+# SDSP Pipeline
+
 **Simulation, Destruction and Structure Prediction Pipeline**
 
 ## 📌 Overview
-This repository contains the implementation of the SDSP pipeline, a workflow for generating RNA Alignments, destroying RNA Secondary Structure, prediction of existing RNA Secondary Strucutre and analyzing the Results.
 
-The pipeline consists of four main steps:
-1. **Simulation** of RNA sequences using SISSI  
-2. **Destruction** of RNA secondary structure using SISSIz, multiperm, and aln-shuffle  
-3. **Structure prediction** using tools such as SISSIz, RNAz, and PETfold  
-4. **Evaluation** of prediction performance (e.g., boxplots, confusion matrices, and ROC curves)
+The SDSP pipeline is a bioinformatics workflow for simulating, randomizing, and analyzing non-coding RNA genes (ncRNA genes) in multiple sequence alignments (MSAs). The pipeline focuses on disrupting RNA secondary structures and identifying conserved structural signals using comparative RNA prediction tools.
 
-The goal of this pipeline is to compare the performance of the individual tools.
+The pipeline consists of four major stages:
 
-## Tools
+1. **Simulation** of RNA sequence alignments using *SISSI*
+2. **Structure destruction / randomization / shuffling** using *SISSIz*, *Multiperm*, and *aln-shuffle*
+3. **Genefinding of ncRNA with predition tools** using *SISSIz*, *RNAz*, and *PETfold*
+4. **Performance evaluation** using statistical analysis and visualization methods
 
-Most of the tools are available online and can be downloaded from their respective websites. If a tool is not publicly available, you can contact me or the tool’s creator for access.
+The primary goal of this pipeline is to compare different randomization and prediction approaches for conserved non-coding RNA (ncRNA) structures.
 
-- SISSI 0.99  
-- SISSIz 3.0  
-- multiperm 0.94  
-- aln-shuffle  
-- RNAz 2.1.1  
-- PETfold 2.2
+---
+
+## 🧰 Tools
+
+Most tools used in this pipeline are publicly available and can be downloaded from their official sources.
+
+The following software versions were used:
+
+* SISSI 0.99
+* SISSIz 3.0
+* Multiperm 0.94
+* aln-shuffle
+* RNAz 2.1.1
+* PETfold 2.2
+
+---
 
 ## ⚙️ Pipeline Workflow
 
 ![Pipeline Diagram](images/Pipeline.drawio.png)
 
-The SDSP pipeline provides an overview of the complete analysis process:
+The SDSP pipeline performs the following workflow:
 
-1. **Positive datasets** are generated using SISSI, based on defined nucleotide frequency distributions. A total of 100,000 sequences per parameter set are created.  
-2. **Negative control sequences** are generated from the positives using SISSIz, Multiperm, and aln-Shuffle. Each positive sequence yields five negative variants, preserving mono- and dinucleotide frequencies (SISSIz, Multiperm) or producing random permutations (aln-Shuffle). About 500,000 negative datasets are generated for evaluation.  
-3. **Structure prediction** is performed using SISSIz, RNAz, and PETfold. Positive datasets retain secondary structure, while negative datasets exhibit disrupted structures.  
-4. **Evaluation** is conducted in Python using pandas, numpy, matplotlib, seaborn, and scikit-learn. Boxplots illustrate structural disruption, and ROC curves evaluate classification performance.
+### 1. Simulation of Positive Datasets
 
-This workflow allows a comprehensive assessment of sequence randomization methods and RNA structure prediction tools.
+Positive RNA alignments are generated using *SISSI* based on predefined nucleotide frequency distributions and phylogenetic models.
+Approximately **100,000 simulated alignments** are generated per parameter configuration.
+
+### 2. Generation of Negative Datasets
+
+Negative control datasets are created from the positive alignments using different randomization approaches:
+
+* **SISSIz** (mono- and dinucleotide preserving simulations)
+* **Multiperm**
+* **aln-shuffle**
+
+These methods disrupt conserved RNA secondary structures while preserving specific sequence characteristics such as nucleotide composition.
+
+### 3. Genefinder and Prediction tools
+
+The generated alignments are analyzed using:
+
+* *SISSIz*
+* *RNAz*
+* *PETfold*
+
+The tools evaluate structural conservation, thermodynamic stability, and statistical significance to identify potential ncRNA structures.
+
+### 4. Evaluation and Visualization
+
+The prediction results are analyzed in Python using:
+
+* pandas
+* numpy
+* matplotlib
+* seaborn
+* scikit-learn
+
+The evaluation includes:
+
+* boxplots
+* confusion matrices
+* ROC curves
+* classification metrics
+
+This enables a systematic comparison of different null models and RNA prediction tools.
+
+---
 
 ## 🚀 Usage
 
-### 1. Clone the repository
+### 1. Clone the Repository
+
 ```bash
 git clone https://github.com/Faragas91/SDSP-Pipeline.git
 cd SDSP-Pipeline
 ```
-### 2. Create a Conda enviroment with the enviroment.yml
 
-``` bash
-conda env create -f enviroment.yml
+---
+
+### 2. Create the Conda Environment
+
+```bash
+conda env create -f environment.yml
 conda activate sdsp_pipeline
 ```
+
+---
+
+### 3. Install Required Programs
+
+Install all required external tools (*SISSI*, *SISSIz*, *RNAz*, *PETfold*, etc.) and ensure they are either:
+
+* available in your system `PATH`, or
+* correctly configured in the pipeline configuration files.
+
+---
+
+### 4. Configure the Pipeline
+
+Adjust the example configuration files according to your local installation paths and desired execution mode.
+
+```bash
+nano config/pipeline_sissi.conf.example
+nano config/pipeline_native.conf.example
+```
+
+After editing the files, rename them:
+
+```bash
+mv config/pipeline_sissi.conf.example config/pipeline_sissi.conf
+mv config/pipeline_native.conf.example config/pipeline_native.conf
+```
+
+---
+
+### 5. Run the Pipeline
+
+The pipeline supports three execution modes:
+
+| Mode     | Description                    |
+| -------- | ------------------------------ |
+| `native` | Run only native datasets       |
+| `sissi`  | Run only simulated datasets    |
+| `both`   | Run both datasets sequentially |
+
+Example:
+
+```bash
+./pipeline.sh both
+./pipeline.sh native
+./pipeline.sh sissi
+```
+
+---
+
+## 📊 Results
+
+All generated prediction and evaluation results are stored in the `results/` directory.
+
+### Prediction Results
+
+```bash
+results/native/
+results/sissi/
+```
+
+### Excel Files
+
+```bash
+results/native/*/excel
+results/sissi/*/excel
+```
+
+---
+
+## 📈 Generated Plots
+
+All generated visualizations are stored in the `images/` directory.
+
+```bash
+images/native/
+images/sissi/
+```
+
+The generated plots include:
+
+* ROC curves
+* confusion matrices
+* histograms
+* boxplots
+* runtime comparisons
+
+---
+
+## ❗ Troubleshooting
+
+If you encounter issues during installation or execution of the pipeline, please open an issue in the GitHub repository.
+
+Bug reports, suggestions, and improvements are highly appreciated.
+
+---
+
+## 📖 Citation
+
+If you use this pipeline in scientific work or publications, please cite the repository appropriately.
+
+---
+
+**Author:** Stefan Redl
