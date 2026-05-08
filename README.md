@@ -113,7 +113,13 @@ Install all required external tools (*SISSI*, *SISSIz*, *RNAz*, *PETfold*, etc.)
 
 ---
 
-### 4. Configure the Pipeline
+### 4. Create folder for your data, results and plots
+
+```bash
+mkdir -p data/native data/sissi result/native result/sissi plots/native plots/sissi
+```
+
+### 5. Configure the Pipeline
 
 Adjust the example configuration files according to your local installation paths and desired execution mode.
 
@@ -131,7 +137,7 @@ mv config/pipeline_native.conf.example config/pipeline_native.conf
 
 ---
 
-### 5. Run the Pipeline
+### 6. Run the Pipeline
 
 The pipeline supports three execution modes:
 
@@ -173,11 +179,11 @@ results/sissi/*/excel
 
 ## 📈 Generated Plots
 
-All generated visualizations are stored in the `images/` directory.
+All generated visualizations are stored in the `plots/` directory.
 
 ```bash
-images/native/
-images/sissi/
+plots/native/
+plots/sissi/
 ```
 
 The generated plots include:
