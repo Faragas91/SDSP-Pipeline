@@ -7,6 +7,7 @@ if [[ "$MODE" != "native" && "$MODE" != "sissi" && "$MODE" != "both" ]]; then
 fi
 
 export PYTHONPATH="$(pwd):$PYTHONPATH"
+export PROJECT_ROOT="$(pwd)"
 
 ##################################
 # Funktion
@@ -18,14 +19,20 @@ run_pipeline () {
 
     export CONFIG_FILE="config/pipeline_${MODE_NAME}.conf"
 
-    # python src/converterClustalToFasta.py
-    # python src/sissiz/sissizPrediction.py
-    # python src/rnaz/rnazPrediction.py
-    # python src/petfold/petfoldPrediction.py
+    if [[ "$MODE_NAME" == "native" ]]; then
+        python src/sampleDestructionForNative.py
+    else
+        python src/sampleGenerationForSISSI.py
+    fi
 
-    # python src/sissiz/transferSISSIzDataToExcel.py
-    # python src/rnaz/transferRNAzDataToExcel.py
-    # python src/petfold/transferPETfoldDataToExcel.py
+    python src/converterClustalToFasta.py
+    python src/sissiz/sissizPrediction.py
+    python src/rnaz/rnazPrediction.py
+    python src/petfold/petfoldPrediction.py
+
+    python src/sissiz/transferSISSIzDataToExcel.py
+    python src/rnaz/transferRNAzDataToExcel.py
+    python src/petfold/transferPETfoldDataToExcel.py
 
     python src/sissiz/sissizAnalyse.py
     python src/rnaz/rnazAnalyse.py
