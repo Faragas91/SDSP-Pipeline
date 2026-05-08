@@ -26,19 +26,23 @@ def parse_rnaz_file(file_path):
 def createExcelData(data, count, nameOfFile, excelName):
     for file_name in os.listdir(directory):
         if file_name.startswith(nameOfFile):
-            count += 1
-            print(f"Process file {count}: {file_name}")
-            file_path = os.path.join(directory, file_name)
-            file_data = parse_rnaz_file(file_path)
-            file_data["File"] = file_name  
-            data.append(file_data)
-
+            collectDataFromPrediction(data, count, file_name)
+        if nameOfFile == "native" and not file_name.startswith("neg_sample"):
+            collectDataFromPrediction(data, count, file_name)
     df = pd.DataFrame(data)
     df.to_excel(f"{excelName}.xlsx", index=False)
 
     print(f"Your data was succsessfully transfered to {excelName}.xlsx.")
     shutil.move(f"/mnt/bernhard/SDSP-Pipeline/{excelName}.xlsx", f"{excel_directory}/{excelName}.xlsx")
     return count 
+
+def collectDataFromPrediction(data, count, file_name):
+    count += 1
+    print(f"Process file {count}: {file_name}")
+    file_path = os.path.join(directory, file_name)
+    file_data = parse_rnaz_file(file_path)
+    file_data["File"] = file_name  
+    data.append(file_data)
 
 config_path = os.getenv("CONFIG_FILE")
 
@@ -49,12 +53,18 @@ config = loadConfig(config_path)
 
 directory = config.get("RNAZPREOUTPUT")
 excel_directory = config.get("RNAZEXCEL")
+excel_name = config.get("EXCELNAME")
+
+if (excel_name == "sissi"):
+    startname = "pos_sample"
+else: 
+    startname = "native"
 
 os.makedirs(excel_directory, exist_ok=True)
 
 count = 0
-sissi_pos_data = []
-count = createExcelData(sissi_pos_data, count, "pos_sample", "sissi")
+pos_data = []
+count = createExcelData(pos_data, count, startname, excel_name)
 
 count = 0
 alifoldz_data = []

@@ -9,14 +9,14 @@ def parse_sissiz_file(file_path):
     # Define the keys for the relevant columns (starting with column 4)
     keys = [
         "Mean Pairwise Identity (MPI) of the input alignment",
-        "Average MPI of the sampled alignments.",
+        "Average MPI of the sampled alignments",
         "Standard deviation of the MPIs of the sampled alignments",
         "Structural Conservation Index (SCI)",
         "GC-Content",
-        "RNAalifold consensus Minimum Free Energy (MFE) of the original alignment.",
+        "RNAalifold consensus Minimum Free Energy (MFE) of the original alignment",
         "Average consensus MFE in the sampled alignments",
         "Standard deviation of the consensus MFE in the sampled alignments",
-        "z-score calculated from 7. 8. and 9."
+        "z-score calculated from 7 8 and 9"
     ]
 
     with open(file_path, 'r') as file:
@@ -32,12 +32,9 @@ def parse_sissiz_file(file_path):
 def createExcelData(data, count, nameOfFile, excelName):
     for file_name in os.listdir(directory):
         if file_name.startswith(nameOfFile):
-            count += 1
-            print(f"Process file {count}: {file_name}")
-            file_path = os.path.join(directory, file_name)
-            file_data = parse_sissiz_file(file_path)
-            file_data["File"] = file_name  
-            data.append(file_data)
+            collectDataFromPrediction(data, count, file_name)
+        if nameOfFile == "native" and not file_name.startswith("neg_sample"):
+            collectDataFromPrediction(data, count, file_name)
 
     df = pd.DataFrame(data)
 
@@ -50,6 +47,14 @@ def createExcelData(data, count, nameOfFile, excelName):
     print(f"Your data was succsessfully transfered to {excelName}.xlsx.")
     shutil.move(f"/mnt/bernhard/SDSP-Pipeline/{excelName}.xlsx", f"{excel_directory}/{excelName}.xlsx")
     return count
+
+def collectDataFromPrediction(data, count, file_name):
+    count += 1
+    print(f"Process file {count}: {file_name}")
+    file_path = os.path.join(directory, file_name)
+    file_data = parse_sissiz_file(file_path)
+    file_data["File"] = file_name  
+    data.append(file_data)
     
 config_path = os.getenv("CONFIG_FILE")
 
@@ -60,12 +65,18 @@ config = loadConfig(config_path)
 
 directory = config.get("SISSIZPREOUTPUT")
 excel_directory = config.get("SISSIZEXCEL")
+excel_name = config.get("EXCELNAME")
+
+if (excel_name == "sissi"):
+    startname = "pos_sample"
+else: 
+    startname = "native"
 
 os.makedirs(excel_directory, exist_ok=True)
 
 count = 0
 sissi_pos_data = []
-count = createExcelData(sissi_pos_data, count, "pos_sample", "sissi")
+count = createExcelData(sissi_pos_data, count, startname, excel_name)
 
 count = 0
 alifoldz_data = []
