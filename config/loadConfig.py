@@ -1,3 +1,5 @@
+import os
+
 def loadConfig(path):
     config = {}
     with open(path) as f:
@@ -5,5 +7,10 @@ def loadConfig(path):
             line = line.strip()
             if line and not line.startswith("#"):
                 key, value = line.split("=", 1)
-                config[key.strip()] = value.strip()
+
+                # 🔥 DAS IST DER FIX
+                value = os.path.expandvars(value.strip())
+
+                config[key.strip()] = value
+
     return config
