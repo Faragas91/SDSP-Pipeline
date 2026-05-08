@@ -168,48 +168,49 @@ config = loadConfig(config_path)
 
 PETFOLDEXCEL = config.get("PETFOLDEXCEL")
 PETFOLDSAVEPATH = config.get("PETFOLDSAVEPATH")
+EXCELNAME = config.get("EXCELNAME")
 
 if not os.path.exists(PETFOLDSAVEPATH):
     os.makedirs(PETFOLDSAVEPATH)
 
-df_sissi = pd.DataFrame(pd.read_excel(f"{PETFOLDEXCEL}/sissi.xlsx", usecols=['Score']))
-df_sissiz_mono = pd.DataFrame(pd.read_excel(f"{PETFOLDEXCEL}/sissiz_mono.xlsx", usecols=['Score']))
-df_sissiz_di = pd.DataFrame(pd.read_excel(f"{PETFOLDEXCEL}/sissiz_di.xlsx", usecols=['Score']))
-df_multiperm_none = pd.DataFrame(pd.read_excel(f"{PETFOLDEXCEL}/multiperm_none.xlsx", usecols=['Score']))
-df_multiperm_level1 = pd.DataFrame(pd.read_excel(f"{PETFOLDEXCEL}/multiperm_level1.xlsx", usecols=['Score']))
-df_aln_shuffle = pd.DataFrame(pd.read_excel(f"{PETFOLDEXCEL}/alnshuffle.xlsx", usecols=['Score']))
+df_positive = pd.DataFrame(pd.read_excel(f"{PETFOLDEXCEL}/{EXCELNAME}.xlsx", usecols=['Score']).dropna())
+df_sissiz_mono = pd.DataFrame(pd.read_excel(f"{PETFOLDEXCEL}/sissiz_mono.xlsx", usecols=['Score']).dropna())
+df_sissiz_di = pd.DataFrame(pd.read_excel(f"{PETFOLDEXCEL}/sissiz_di.xlsx", usecols=['Score']).dropna())
+df_multiperm_none = pd.DataFrame(pd.read_excel(f"{PETFOLDEXCEL}/multiperm_none.xlsx", usecols=['Score']).dropna())
+df_multiperm_level1 = pd.DataFrame(pd.read_excel(f"{PETFOLDEXCEL}/multiperm_level1.xlsx", usecols=['Score']).dropna())
+df_aln_shuffle = pd.DataFrame(pd.read_excel(f"{PETFOLDEXCEL}/alnshuffle.xlsx", usecols=['Score']).dropna())
 
 all_roc_data = []
 
 tools = [
     {
-        "df_positive": df_sissi,
+        "df_positive": df_positive,
         "df_negative": df_sissiz_mono,
-        "title_suffix": "SISSI vs SISSIz_MONO with randomized samples",
+        "title_suffix": f"{EXCELNAME.upper()} vs SISSIz_MONO with randomized samples",
         "save_path": PETFOLDSAVEPATH
     }, 
     {
-        "df_positive": df_sissi,
+        "df_positive": df_positive,
         "df_negative": df_sissiz_di,
-        "title_suffix": "SISSI vs SISSIz_DI with randomized samples",
+        "title_suffix": f"{EXCELNAME.upper()} vs SISSIz_DI with randomized samples",
         "save_path": PETFOLDSAVEPATH
     }, 
     {
-        "df_positive": df_sissi,
+        "df_positive": df_positive,
         "df_negative": df_multiperm_none,
-        "title_suffix": "SISSI vs Multiperm_NONE with randomized samples",
+        "title_suffix": f"{EXCELNAME.upper()} vs Multiperm_NONE with randomized samples",
         "save_path": PETFOLDSAVEPATH
     }, 
     {
-        "df_positive": df_sissi,
+        "df_positive": df_positive,
         "df_negative": df_multiperm_level1,
-        "title_suffix": "SISSI vs Multiperm_LEVEL1 with randomized samples",
+        "title_suffix": f"{EXCELNAME.upper()} vs Multiperm_LEVEL1 with randomized samples",
         "save_path": PETFOLDSAVEPATH
     }, 
     {
-        "df_positive": df_sissi,
+        "df_positive": df_positive,
         "df_negative": df_aln_shuffle,
-        "title_suffix": "SISSI vs Aln_Shuffle with randomized samples",
+        "title_suffix": f"{EXCELNAME.upper()} vs Aln_Shuffle with randomized samples",
         "save_path": PETFOLDSAVEPATH
     }
 ]
@@ -244,7 +245,7 @@ plt.legend(loc="lower right")
 plt.grid(True)
 plt.tight_layout()
 if PETFOLDSAVEPATH:
-    filename = os.path.join(PETFOLDSAVEPATH, "PETfold: ROC Curve All with randomized samples.png")
+    filename = os.path.join(PETFOLDSAVEPATH, f"PETfold: ROC Curve All with randomized samples.png")
     plt.savefig(filename, dpi=300, bbox_inches='tight')
 plt.close()
 

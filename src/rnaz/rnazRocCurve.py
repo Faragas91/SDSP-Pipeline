@@ -169,48 +169,49 @@ config = loadConfig(config_path)
 
 RNAZEXCEL = config.get("RNAZEXCEL")
 RNAZSAVEPATH = config.get("RNAZSAVEPATH")
+EXCELNAME = config.get("EXCELNAME")
 
 if not os.path.exists(RNAZSAVEPATH):
     os.makedirs(RNAZSAVEPATH)
 
-df_sissi = pd.DataFrame(pd.read_excel(f"{RNAZEXCEL}/sissi.xlsx", usecols=['SVM RNA-class probability']))
-df_sissiz_mono = pd.DataFrame(pd.read_excel(f"{RNAZEXCEL}/sissiz_mono.xlsx", usecols=['SVM RNA-class probability']))
-df_sissiz_di = pd.DataFrame(pd.read_excel(f"{RNAZEXCEL}/sissiz_di.xlsx", usecols=['SVM RNA-class probability']))
-df_multiperm_none = pd.DataFrame(pd.read_excel(f"{RNAZEXCEL}/multiperm_none.xlsx", usecols=['SVM RNA-class probability']))
-df_multiperm_level1 = pd.DataFrame(pd.read_excel(f"{RNAZEXCEL}/multiperm_level1.xlsx", usecols=['SVM RNA-class probability']))
-df_aln_shuffle = pd.DataFrame(pd.read_excel(f"{RNAZEXCEL}/alnshuffle.xlsx", usecols=['SVM RNA-class probability']))
+df_positive = pd.DataFrame(pd.read_excel(f"{RNAZEXCEL}/{EXCELNAME}.xlsx", usecols=['SVM RNA-class probability']).dropna())
+df_sissiz_mono = pd.DataFrame(pd.read_excel(f"{RNAZEXCEL}/sissiz_mono.xlsx", usecols=['SVM RNA-class probability']).dropna())
+df_sissiz_di = pd.DataFrame(pd.read_excel(f"{RNAZEXCEL}/sissiz_di.xlsx", usecols=['SVM RNA-class probability']).dropna())
+df_multiperm_none = pd.DataFrame(pd.read_excel(f"{RNAZEXCEL}/multiperm_none.xlsx", usecols=['SVM RNA-class probability']).dropna())
+df_multiperm_level1 = pd.DataFrame(pd.read_excel(f"{RNAZEXCEL}/multiperm_level1.xlsx", usecols=['SVM RNA-class probability']).dropna())
+df_aln_shuffle = pd.DataFrame(pd.read_excel(f"{RNAZEXCEL}/alnshuffle.xlsx", usecols=['SVM RNA-class probability']).dropna())
 
 all_roc_data = []
 
 tools = [
     {
-        "df_positive": df_sissi,
+        "df_positive": df_positive,
         "df_negative": df_sissiz_mono,
-        "title_suffix": "SISSI vs SISSIz_MONO with randomized samples",
+        "title_suffix": f"{EXCELNAME.upper()} vs SISSIz_MONO with randomized samples",
         "save_path": RNAZSAVEPATH
     }, 
     {
-        "df_positive": df_sissi,
+        "df_positive": df_positive,
         "df_negative": df_sissiz_di,
-        "title_suffix": "SISSI vs SISSIz_DI with randomized samples",
+        "title_suffix": f"{EXCELNAME.upper()} vs SISSIz_DI with randomized samples",
         "save_path": RNAZSAVEPATH
     }, 
     {
-        "df_positive": df_sissi,
+        "df_positive": df_positive,
         "df_negative": df_multiperm_none,
-        "title_suffix": "SISSI vs Multiperm_NONE with randomized samples",
+        "title_suffix": f"{EXCELNAME.upper()} vs Multiperm_NONE with randomized samples",
         "save_path": RNAZSAVEPATH
     }, 
     {
-        "df_positive": df_sissi,
+        "df_positive": df_positive,
         "df_negative": df_multiperm_level1,
-        "title_suffix": "SISSI vs Multiperm_LEVEL1 with randomized samples",
+        "title_suffix": f"{EXCELNAME.upper()} vs Multiperm_LEVEL1 with randomized samples",
         "save_path": RNAZSAVEPATH
     }, 
     {
-        "df_positive": df_sissi,
+        "df_positive": df_positive,
         "df_negative": df_aln_shuffle,
-        "title_suffix": "SISSI vs Aln_Shuffle with randomized samples",
+        "title_suffix": f"{EXCELNAME.upper()} vs Aln_Shuffle with randomized samples",
         "save_path": RNAZSAVEPATH
     }
 ]

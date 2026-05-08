@@ -172,50 +172,51 @@ config = loadConfig(config_path)
 
 SISSIZEXCEL = config.get("SISSIZEXCEL")
 SISSIZSAVEPATH = config.get("SISSIZSAVEPATH")
+EXCELNAME = config.get("EXCELNAME")
 
 if not os.path.exists(SISSIZSAVEPATH):
     os.makedirs(SISSIZSAVEPATH)
 
 # Load the data
-df_sissi = pd.read_excel(f"{SISSIZEXCEL}/sissi.xlsx", usecols=['z-score calculated from 7 8 and 9'])
-df_sissiz_mono = pd.read_excel(f"{SISSIZEXCEL}/sissiz_mono.xlsx", usecols=['z-score calculated from 7 8 and 9'])
-df_sissiz_di = pd.read_excel(f"{SISSIZEXCEL}/sissiz_di.xlsx", usecols=['z-score calculated from 7 8 and 9'])
-df_multiperm_none = pd.read_excel(f"{SISSIZEXCEL}/multiperm_none.xlsx", usecols=['z-score calculated from 7 8 and 9'])
-df_multiperm_level1 = pd.read_excel(f"{SISSIZEXCEL}/multiperm_level1.xlsx", usecols=['z-score calculated from 7 8 and 9'])
-df_aln_shuffle = pd.read_excel(f"{SISSIZEXCEL}/alnshuffle.xlsx", usecols=['z-score calculated from 7 8 and 9'])
+df_positive = pd.read_excel(f"{SISSIZEXCEL}/{EXCELNAME}.xlsx", usecols=['z-score calculated from 7 8 and 9']).dropna()
+df_sissiz_mono = pd.read_excel(f"{SISSIZEXCEL}/sissiz_mono.xlsx", usecols=['z-score calculated from 7 8 and 9']).dropna()
+df_sissiz_di = pd.read_excel(f"{SISSIZEXCEL}/sissiz_di.xlsx", usecols=['z-score calculated from 7 8 and 9']).dropna()
+df_multiperm_none = pd.read_excel(f"{SISSIZEXCEL}/multiperm_none.xlsx", usecols=['z-score calculated from 7 8 and 9']).dropna()
+df_multiperm_level1 = pd.read_excel(f"{SISSIZEXCEL}/multiperm_level1.xlsx", usecols=['z-score calculated from 7 8 and 9']).dropna()
+df_aln_shuffle = pd.read_excel(f"{SISSIZEXCEL}/alnshuffle.xlsx", usecols=['z-score calculated from 7 8 and 9']).dropna()
 
 
 all_roc_data = []
 
 tools = [
     {
-        "df_positive": df_sissi,
+        "df_positive": df_positive,
         "df_negative": df_sissiz_mono,
-        "title_suffix": "SISSI vs SISSIz_MONO with randomized samples",
+        "title_suffix": f"{EXCELNAME.upper()} vs SISSIz_MONO with randomized samples",
         "save_path": SISSIZSAVEPATH
     }, 
     {
-        "df_positive": df_sissi,
+        "df_positive": df_positive,
         "df_negative": df_sissiz_di,
-        "title_suffix": "SISSI vs SISSIz_DI with randomized samples",
+        "title_suffix": f"{EXCELNAME.upper()} vs SISSIz_DI with randomized samples",
         "save_path": SISSIZSAVEPATH
     }, 
     {
-        "df_positive": df_sissi,
+        "df_positive": df_positive,
         "df_negative": df_multiperm_none,
-        "title_suffix": "SISSI vs Multiperm_NONE with randomized samples",
+        "title_suffix": f"{EXCELNAME.upper()} vs Multiperm_NONE with randomized samples",
         "save_path": SISSIZSAVEPATH
     }, 
     {
-        "df_positive": df_sissi,
+        "df_positive": df_positive,
         "df_negative": df_multiperm_level1,
-        "title_suffix": "SISSI vs Multiperm_LEVEL1 with randomized samples",
+        "title_suffix": f"{EXCELNAME.upper()} vs Multiperm_LEVEL1 with randomized samples",
         "save_path": SISSIZSAVEPATH
     }, 
     {
-        "df_positive": df_sissi,
+        "df_positive": df_positive,
         "df_negative": df_aln_shuffle,
-        "title_suffix": "SISSI vs Aln_Shuffle with randomized samples",
+        "title_suffix": f"{EXCELNAME.upper()} vs Aln_Shuffle with randomized samples",
         "save_path": SISSIZSAVEPATH
     }
 ]
