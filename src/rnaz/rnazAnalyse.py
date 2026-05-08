@@ -47,16 +47,17 @@ config = loadConfig(config_path)
 
 RNAZEXCEL = config.get("RNAZEXCEL")
 RNAZSAVEPATH = config.get("RNAZSAVEPATH")
+EXCELNAME = config.get("EXCELNAME")
 
 if not os.path.exists(RNAZSAVEPATH):
         os.makedirs(RNAZSAVEPATH)
 
-df_sissi = pd.DataFrame(pd.read_excel(f"{RNAZEXCEL}/sissi.xlsx"))
-df_sissiz_mono = pd.DataFrame(pd.read_excel(f"{RNAZEXCEL}/sissiz_mono.xlsx"))
-df_sissiz_di = pd.DataFrame(pd.read_excel(f"{RNAZEXCEL}/sissiz_di.xlsx"))
-df_multiperm_none = pd.DataFrame(pd.read_excel(f"{RNAZEXCEL}/multiperm_none.xlsx"))
-df_multiperm_level1 = pd.DataFrame(pd.read_excel(f"{RNAZEXCEL}/multiperm_level1.xlsx"))
-df_aln_shuffle = pd.DataFrame(pd.read_excel(f"{RNAZEXCEL}/alnshuffle.xlsx"))
+df_sissi = pd.DataFrame(pd.read_excel(f"{RNAZEXCEL}/{EXCELNAME}.xlsx").dropna())
+df_sissiz_mono = pd.DataFrame(pd.read_excel(f"{RNAZEXCEL}/sissiz_mono.xlsx").dropna())
+df_sissiz_di = pd.DataFrame(pd.read_excel(f"{RNAZEXCEL}/sissiz_di.xlsx").dropna())
+df_multiperm_none = pd.DataFrame(pd.read_excel(f"{RNAZEXCEL}/multiperm_none.xlsx").dropna())
+df_multiperm_level1 = pd.DataFrame(pd.read_excel(f"{RNAZEXCEL}/multiperm_level1.xlsx").dropna())
+df_aln_shuffle = pd.DataFrame(pd.read_excel(f"{RNAZEXCEL}/alnshuffle.xlsx").dropna())
 
 plot_columns('SVM RNA-class probability')
 plot_columns('Structure conservation index')

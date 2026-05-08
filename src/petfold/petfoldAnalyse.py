@@ -20,19 +20,20 @@ config = loadConfig(config_path)
 
 PETFOLDEXCEL = config.get("PETFOLDEXCEL")
 PETFOLDSAVEPATH = config.get("PETFOLDSAVEPATH")
+EXCELNAME = config.get("EXCELNAME")
 
 if not os.path.exists(PETFOLDSAVEPATH):
     os.makedirs(PETFOLDSAVEPATH)
 
-df_sissi = pd.DataFrame(pd.read_excel(f"{PETFOLDEXCEL}/sissi.xlsx"))
-df_sissiz_mono = pd.DataFrame(pd.read_excel(f"{PETFOLDEXCEL}/sissiz_mono.xlsx"))
-df_sissiz_di = pd.DataFrame(pd.read_excel(f"{PETFOLDEXCEL}/sissiz_di.xlsx"))
-df_multiperm_none = pd.DataFrame(pd.read_excel(f"{PETFOLDEXCEL}/multiperm_none.xlsx"))
-df_multiperm_level1 = pd.DataFrame(pd.read_excel(f"{PETFOLDEXCEL}/multiperm_level1.xlsx"))
-df_aln_shuffle = pd.DataFrame(pd.read_excel(f"{PETFOLDEXCEL}/alnshuffle.xlsx"))
+df_positive= pd.DataFrame(pd.read_excel(f"{PETFOLDEXCEL}/{EXCELNAME}.xlsx").dropna())
+df_sissiz_mono = pd.DataFrame(pd.read_excel(f"{PETFOLDEXCEL}/sissiz_mono.xlsx").dropna())
+df_sissiz_di = pd.DataFrame(pd.read_excel(f"{PETFOLDEXCEL}/sissiz_di.xlsx").dropna())
+df_multiperm_none = pd.DataFrame(pd.read_excel(f"{PETFOLDEXCEL}/multiperm_none.xlsx").dropna())
+df_multiperm_level1 = pd.DataFrame(pd.read_excel(f"{PETFOLDEXCEL}/multiperm_level1.xlsx").dropna())
+df_aln_shuffle = pd.DataFrame(pd.read_excel(f"{PETFOLDEXCEL}/alnshuffle.xlsx").dropna())
 
-dataframes = [df_sissi, df_sissiz_mono, df_sissiz_di, df_multiperm_none, df_multiperm_level1, df_aln_shuffle]
-labels = ['SISSI', 'SISSIz_mono', 'SISSIz_di', 'Multiperm_none', 'Multiperm_level1', 'aln-shuffle']
+dataframes = [df_positive, df_sissiz_mono, df_sissiz_di, df_multiperm_none, df_multiperm_level1, df_aln_shuffle]
+labels = [f'{EXCELNAME.upper()}', 'SISSIz_mono', 'SISSIz_di', 'Multiperm_none', 'Multiperm_level1', 'aln-shuffle']
 data = [df['Score'] for df in dataframes]
 thresholds = [0.5]
 
@@ -49,7 +50,7 @@ plt.axvspan(3.5, 6.5, color="mediumpurple", alpha=0.75, edgecolor="black", label
 
 # Speichern optional
 if PETFOLDSAVEPATH:
-    filename = os.path.join(PETFOLDSAVEPATH, "PETfold: Boxplot Score with randomized samples.png")
+    filename = os.path.join(PETFOLDSAVEPATH, f"PETfold: Boxplot Score with randomized samples.png")
     plt.savefig(filename, dpi=300, bbox_inches='tight')
 
 # plt.ylim(0.9825, 1.0)

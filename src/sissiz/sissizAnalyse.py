@@ -13,8 +13,8 @@ import os
 from config.loadConfig import loadConfig
 
 def plot_columns(columnname, thresholds):
-    dataframes = [df_sissi, df_sissiz_mono , df_sissiz_di, df_multiperm_none, df_multiperm_level1, df_aln_shuffle]
-    labels = ['SISSI', 'SISSIz_mono', 'SISSIz_di', 'Multiperm_none', 'Multiperm_level1', 'aln-shuffle']
+    dataframes = [df_positive, df_sissiz_mono , df_sissiz_di, df_multiperm_none, df_multiperm_level1, df_aln_shuffle]
+    labels = [f'{EXCELNAME.upper()}', 'SISSIz_mono', 'SISSIz_di', 'Multiperm_none', 'Multiperm_level1', 'aln-shuffle']
     data = [df[columnname] for df in dataframes]
 
     plt.figure(figsize=(12, 8))
@@ -51,16 +51,17 @@ config = loadConfig(config_path)
 
 SISSIZEXCEL = config.get("SISSIZEXCEL")
 SISSIZSAVEPATH = config.get("SISSIZSAVEPATH")
+EXCELNAME = config.get("EXCELNAME")
 
 if not os.path.exists(SISSIZSAVEPATH):
     os.makedirs(SISSIZSAVEPATH)
 
-df_sissi = pd.DataFrame(pd.read_excel(f"{SISSIZEXCEL}/sissi.xlsx"))
-df_sissiz_mono = pd.DataFrame(pd.read_excel(f"{SISSIZEXCEL}/sissiz_mono.xlsx"))
-df_sissiz_di = pd.DataFrame(pd.read_excel(f"{SISSIZEXCEL}/sissiz_di.xlsx"))
-df_multiperm_none = pd.DataFrame(pd.read_excel(f"{SISSIZEXCEL}/multiperm_none.xlsx"))
-df_multiperm_level1 = pd.DataFrame(pd.read_excel(f"{SISSIZEXCEL}/multiperm_level1.xlsx"))
-df_aln_shuffle = pd.DataFrame(pd.read_excel(f"{SISSIZEXCEL}/alnshuffle.xlsx"))
+df_positive = pd.DataFrame(pd.read_excel(f"{SISSIZEXCEL}/{EXCELNAME}.xlsx").dropna())
+df_sissiz_mono = pd.DataFrame(pd.read_excel(f"{SISSIZEXCEL}/sissiz_mono.xlsx").dropna())
+df_sissiz_di = pd.DataFrame(pd.read_excel(f"{SISSIZEXCEL}/sissiz_di.xlsx").dropna())
+df_multiperm_none = pd.DataFrame(pd.read_excel(f"{SISSIZEXCEL}/multiperm_none.xlsx").dropna())
+df_multiperm_level1 = pd.DataFrame(pd.read_excel(f"{SISSIZEXCEL}/multiperm_level1.xlsx").dropna())
+df_aln_shuffle = pd.DataFrame(pd.read_excel(f"{SISSIZEXCEL}/alnshuffle.xlsx").dropna())
  
 plot_columns('Mean Pairwise Identity (MPI) of the input alignment', None)
 plot_columns('Average MPI of the sampled alignments', None)
